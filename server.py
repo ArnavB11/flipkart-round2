@@ -54,6 +54,13 @@ FEATURE_COLS = [
     "historical_zone_density",
 ]
 
+# Per-scenario defaults for protocol computation (event_cause → manpower/barricade formulas)
+_SCENARIO_DEFAULTS = [
+    {"event_cause": "breakdown",    "severity_label": "High",     "severity_score": 72, "crowd_size": 0},
+    {"event_cause": "vip_movement", "severity_label": "Critical", "severity_score": 90, "crowd_size": 0},
+    {"event_cause": "procession",   "severity_label": "High",     "severity_score": 78, "crowd_size": 5000},
+]
+
 app = FastAPI(title="ASTRAM Traffic Manager API")
 app.add_middleware(
     CORSMiddleware,
@@ -250,11 +257,25 @@ def run_scenario(index: int):
     instruction = officer_instruction(
         G, scenario["blocked"], scenario["origin"], scenario["dest"], primary
     )
+
+    sp = _SCENARIO_DEFAULTS[index]
+    barricade = predict_barricade(sp["event_cause"], sp["severity_score"])
+    officers = compute_officers(
+        sp["severity_score"], scenario["blocked"], sp["crowd_size"], sp["event_cause"]
+    )
+
     return {
         "scenario": scenario,
         "primary": {**get_path_metrics(G, primary), "osrm": fetch_osrm_route(G, primary)},
         "secondary": {**get_path_metrics(G, secondary), "osrm": fetch_osrm_route(G, secondary)},
         "instruction": instruction,
+        "protocol": {
+            "severity_label": sp["severity_label"],
+            "severity_score": sp["severity_score"],
+            "officers_needed": officers,
+            "police_protocol": PROTOCOL_THRESHOLDS["Critical"],
+            **barricade,
+        },
     }
 
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import L from 'leaflet';
 import {
-  Circle,
+  CircleMarker,
   MapContainer,
   Marker,
   Polyline,
@@ -161,7 +161,14 @@ function getOffsetRoutes(primary, secondary) {
   return { primary: newPrimary, secondary: newSecondary };
 }
 
-export default function DiversionMap({ networkState, routeData, custom }) {
+const SEVERITY_COLOR = {
+  critical: 'var(--route-blocked)',
+  high:     'var(--severity-high)',
+  medium:   'var(--severity-med)',
+  low:      'var(--severity-low)',
+};
+
+export default function DiversionMap({ networkState, routeData, custom, protocol }) {
   const primaryNodes = routeNodes(routeData, custom, 'primary');
   const secondaryNodes = routeNodes(routeData, custom, 'secondary');
   const scenario = custom
@@ -227,6 +234,14 @@ export default function DiversionMap({ networkState, routeData, custom }) {
         path.getBoundingClientRect(); // force reflow
         path.style.transition = 'stroke-dashoffset 1.4s ease-out';
         path.style.strokeDashoffset = '0';
+        // Clear dash styles after animation so the full route stays visible at all zoom levels.
+        // Without this, Leaflet re-renders the SVG path on zoom (changing pixel length) but
+        // strokeDasharray stays at the original pixel length → partial route visibility.
+        setTimeout(() => {
+          path.style.strokeDasharray = '';
+          path.style.strokeDashoffset = '';
+          path.style.transition = '';
+        }, 1500);
       }
     }
   };
@@ -247,6 +262,33 @@ export default function DiversionMap({ networkState, routeData, custom }) {
           <strong className="numeric">{secondaryDistance ?? 0} km</strong>
         </article>
       </div>
+
+      {protocol && (() => {
+        const lvl = (protocol.severity_label || 'low').toLowerCase();
+        const color = SEVERITY_COLOR[lvl] || SEVERITY_COLOR.low;
+        return (
+          <div className="map-overlay protocol-strip">
+            <span className="protocol-badge" style={{ color, background: `${color}22`, border: `1px solid ${color}55` }}>
+              {protocol.severity_label}
+            </span>
+            <div className="protocol-divider" />
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 3 }}>Protocol</p>
+              <strong style={{ fontSize: 13, color: 'var(--text-main)' }}>{protocol.police_protocol?.action}</strong>
+            </div>
+            <div className="protocol-divider" />
+            <div className="protocol-metric">
+              <span>Officers</span>
+              <strong className="numeric">{protocol.officers_needed}</strong>
+            </div>
+            <div className="protocol-divider" />
+            <div className="protocol-metric">
+              <span>Barricades</span>
+              <strong>{protocol.barricade_needed ? `${protocol.estimated_barricade_points} points` : 'None needed'}</strong>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="map-overlay map-legend">
         <p className="eyebrow" style={{ marginBottom: 12 }}>Map Legend</p>
@@ -300,12 +342,12 @@ export default function DiversionMap({ networkState, routeData, custom }) {
         })}
 
         {(networkState?.hotspots || []).map((hotspot, index) => (
-          <Circle
+          <CircleMarker
             key={`${hotspot.lat}-${index}`}
             center={[hotspot.lat, hotspot.lon]}
-            radius={800}
+            radius={Math.min(7 + Math.sqrt(hotspot.size || 1) * 2, 18)}
             className="animated-hotspot"
-            pathOptions={{ color: '#E5484D', fillColor: '#E5484D', fillOpacity: 0.2 }}
+            pathOptions={{ color: '#E5484D', fillColor: '#E5484D', fillOpacity: 0.25, weight: 1.5 }}
           />
         ))}
 

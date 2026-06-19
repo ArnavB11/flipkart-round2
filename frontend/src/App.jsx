@@ -103,6 +103,21 @@ export default function App() {
     [eventResult, scenarioRoute],
   );
 
+  const activeProtocol = useMemo(() => {
+    if (eventResult) {
+      return {
+        severity_label: eventResult.severity_label,
+        severity_score: eventResult.severity_score,
+        officers_needed: eventResult.officers_needed,
+        barricade_needed: eventResult.barricade_needed,
+        barricade_confidence: eventResult.barricade_confidence,
+        estimated_barricade_points: eventResult.estimated_barricade_points,
+        police_protocol: eventResult.police_protocol,
+      };
+    }
+    return scenarioRoute?.protocol ?? null;
+  }, [eventResult, scenarioRoute]);
+
   return (
     <div className="app-shell">
       {networkError && (
@@ -186,6 +201,7 @@ export default function App() {
               networkState={state}
               routeData={activeRoute}
               custom={Boolean(eventResult?.diversion)}
+              protocol={activeProtocol}
             />
           )}
 
