@@ -216,7 +216,8 @@ export default function EventForm({
           <p className="form-section-label">Incident details</p>
           <div className="field-grid">
             <label>
-              What type of incident?
+              <span>What type of incident?</span>
+              <span className="field-desc">The primary cause of the congestion.</span>
               <select value={form.event_cause} onChange={(e) => update('event_cause', e.target.value)}>
                 {CAUSE_OPTIONS.map(({ value, label }) => (
                   <option value={value} key={value}>{label}</option>
@@ -224,7 +225,8 @@ export default function EventForm({
               </select>
             </label>
             <label>
-              Priority
+              <span>Priority</span>
+              <span className="field-desc">Urgency level of emergency response.</span>
               <select value={form.priority} onChange={(e) => update('priority', e.target.value)}>
                 {PRIORITY_OPTIONS.map(({ value, label }) => (
                   <option value={value} key={value}>{label}</option>
@@ -233,8 +235,9 @@ export default function EventForm({
             </label>
           </div>
 
-          <label>
-            Affected corridor
+          <label style={{ marginTop: 12 }}>
+            <span>Affected corridor</span>
+            <span className="field-desc">The primary road segment or highway artery blocked.</span>
             <select value={form.corridor} onChange={(e) => update('corridor', e.target.value)}>
               {!corridors.includes('CBD 2') && <option>CBD 2</option>}
               {corridors.map((corridor) => <option key={corridor}>{corridor}</option>)}
@@ -245,15 +248,17 @@ export default function EventForm({
         <div className="form-section">
           <p className="form-section-label">Location & timing</p>
           <label>
-            City zone
+            <span>City zone</span>
+            <span className="field-desc">Bengaluru police jurisdiction managing the area.</span>
             <select value={form.zone} onChange={(e) => update('zone', e.target.value)}>
               {ZONES.map((zone) => <option key={zone}>{zone}</option>)}
             </select>
           </label>
 
-          <div className="field-grid">
+          <div className="field-grid" style={{ marginTop: 12 }}>
             <label>
-              Day of incident
+              <span>Day of incident</span>
+              <span className="field-desc">Used for weekly traffic cycles.</span>
               <select value={form.dow} onChange={(e) => update('dow', Number(e.target.value))}>
                 {DAY_OPTIONS.map(({ value, label }) => (
                   <option value={value} key={value}>{label}</option>
@@ -261,7 +266,8 @@ export default function EventForm({
               </select>
             </label>
             <label>
-              Expected crowd size
+              <span>Expected crowd size</span>
+              <span className="field-desc">Headcount to scale manpower.</span>
               <input
                 type="number"
                 min="0"
@@ -272,8 +278,9 @@ export default function EventForm({
             </label>
           </div>
 
-          <label className="range-field">
+          <label className="range-field" style={{ marginTop: 12 }}>
             <span>Time of incident <strong className="numeric">{formatHour(form.hour)}</strong></span>
+            <span className="field-desc">Factors in peak commute rush hours.</span>
             <input
               type="range"
               min="0"
@@ -283,16 +290,18 @@ export default function EventForm({
             />
           </label>
 
-          <details className="coord-details">
+          <details className="coord-details" style={{ marginTop: 12 }}>
             <summary>📍 Coordinates (auto-filled from origin)</summary>
             <div className="field-grid" style={{ marginTop: 10 }}>
               <label>
-                Latitude
+                <span>Latitude</span>
+                <span className="field-desc">Exact coordinate lat.</span>
                 <input type="number" step="0.0001" value={form.latitude}
                   onChange={(e) => update('latitude', Number(e.target.value))} />
               </label>
               <label>
-                Longitude
+                <span>Longitude</span>
+                <span className="field-desc">Exact coordinate lon.</span>
                 <input type="number" step="0.0001" value={form.longitude}
                   onChange={(e) => update('longitude', Number(e.target.value))} />
               </label>
@@ -304,25 +313,30 @@ export default function EventForm({
           <p className="form-section-label">Diversion routing</p>
           <div className="field-grid">
             <label>
-              Traffic origin point
+              <span>Traffic origin point</span>
+              <span className="field-desc">Divert flow starting here.</span>
               <select value={form.origin} onChange={(e) => update('origin', e.target.value)}>
                 {nodeEntries.map(([id, name]) => <option value={id} key={id}>{formatNodeName(name)}</option>)}
               </select>
             </label>
             <label>
-              Traffic destination
+              <span>Traffic destination</span>
+              <span className="field-desc">Rejoin routes at this node.</span>
               <select value={form.destination} onChange={(e) => update('destination', e.target.value)}>
                 {nodeEntries.map(([id, name]) => <option value={id} key={id}>{formatNodeName(name)}</option>)}
               </select>
             </label>
           </div>
 
-          <div className="toggle-row">
-            <span><CalendarClock size={16} /> Event planning</span>
-            <div className="segmented">
-              <button type="button" className={form.planned ? 'active' : ''} onClick={() => update('planned', true)}>Planned</button>
-              <button type="button" className={!form.planned ? 'active' : ''} onClick={() => update('planned', false)}>Unplanned</button>
+          <div className="toggle-row-wrap" style={{ display: 'grid', gap: '4px', marginTop: 12 }}>
+            <div className="toggle-row" style={{ paddingLeft: 0, paddingRight: 0 }}>
+              <span><CalendarClock size={16} /> Event planning</span>
+              <div className="segmented">
+                <button type="button" className={form.planned ? 'active' : ''} onClick={() => update('planned', true)}>Planned</button>
+                <button type="button" className={!form.planned ? 'active' : ''} onClick={() => update('planned', false)}>Unplanned</button>
+              </div>
             </div>
+            <span className="field-desc" style={{ paddingLeft: 12 }}>Distinguishes scheduled operations from emergency response.</span>
           </div>
         </div>
 

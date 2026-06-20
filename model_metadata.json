@@ -1,6 +1,6 @@
 {
-  "trained_at": "2026-06-19T10:48:45.726880",
-  "model_name": "Random Forest Regressor",
-  "mae": 823.9900195943513,
-  "r2": 0.13205028905822003
+  "trained_at": "2026-06-20T15:00:41.625274",
+  "model_name": "Extra Trees Regressor",
+  "mae": 812.5087901630394,
+  "r2": 0.15439969025227807
 }

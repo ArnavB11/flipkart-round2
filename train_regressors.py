@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OrdinalEncoder
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
 from lightgbm import LGBMRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.compose import TransformedTargetRegressor
@@ -77,10 +77,12 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
     # Note: XGBoost 3.x crashes on Windows (DMatrix access violation in joblib workers)
     # and was also scoring lower than Random Forest, so it is excluded.
     rf_base = RandomForestRegressor(random_state=42, n_jobs=-1)
+    et_base = ExtraTreesRegressor(random_state=42, n_jobs=-1)
     lr_base = LinearRegression()
 
     # Wrap base models to predict log(congestion_score)
     rf_log = TransformedTargetRegressor(regressor=rf_base, func=np.log1p, inverse_func=np.expm1)
+    et_log = TransformedTargetRegressor(regressor=et_base, func=np.log1p, inverse_func=np.expm1)
     lr_log = TransformedTargetRegressor(regressor=lr_base, func=np.log1p, inverse_func=np.expm1)
     lgbm_log = TransformedTargetRegressor(regressor=LGBMRegressor(random_state=42, n_jobs=-1, verbose=-1), func=np.log1p, inverse_func=np.expm1)
 
@@ -92,6 +94,15 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
         },
         "Random Forest Regressor": {
             "model": rf_log,
+            "params": {
+                'model__regressor__n_estimators': [100, 200, 300, 500],
+                'model__regressor__max_depth': [None, 10, 20, 30, 40],
+                'model__regressor__min_samples_split': [2, 5, 10],
+                'model__regressor__min_samples_leaf': [1, 2, 4]
+            }
+        },
+        "Extra Trees Regressor": {
+            "model": et_log,
             "params": {
                 'model__regressor__n_estimators': [100, 200, 300, 500],
                 'model__regressor__max_depth': [None, 10, 20, 30, 40],
