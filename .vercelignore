@@ -1,0 +1,17 @@
+# Data files and datasets
+*.csv
+*.json
+*.pkl
+
+# Project-specific large files/binaries
+Astram*
+*.png
+
+# Python cache and environment
+__pycache__/
+*.pyc
+venv/
+.env
+
+# If you have any other local folders with heavy data
+data/
