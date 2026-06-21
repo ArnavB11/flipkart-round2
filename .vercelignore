@@ -1,22 +1,24 @@
-# Data files and datasets
-*.csv
-*.json
-*.pkl
-
 # Project-specific large files/binaries
-Astram*
 *.png
 
 # Python cache and environment
 __pycache__/
 *.pyc
 venv/
+.venv/
+env/
 .env
 
 # If you have any other local folders with heavy data
 data/
 
-node_modules
+node_modules/
 
 .git/
 *.log
+
+.gitignore
+train_regressors.py
+eda_and_feature_engineering.py
+train_barricade_classifier.py
+test_phase1_routing.py
