@@ -15,3 +15,5 @@ venv/
 
 # If you have any other local folders with heavy data
 data/
+
+node_modules
