@@ -76,15 +76,15 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
     # Initialize base models
     # Note: XGBoost 3.x crashes on Windows (DMatrix access violation in joblib workers)
     # and was also scoring lower than Random Forest, so it is excluded.
-    rf_base = RandomForestRegressor(random_state=42, n_jobs=-1)
-    et_base = ExtraTreesRegressor(random_state=42, n_jobs=-1)
+    rf_base = RandomForestRegressor(random_state=42, n_jobs=1)
+    et_base = ExtraTreesRegressor(random_state=42, n_jobs=1)
     lr_base = LinearRegression()
 
     # Wrap base models to predict log(congestion_score)
     rf_log = TransformedTargetRegressor(regressor=rf_base, func=np.log1p, inverse_func=np.expm1)
     et_log = TransformedTargetRegressor(regressor=et_base, func=np.log1p, inverse_func=np.expm1)
     lr_log = TransformedTargetRegressor(regressor=lr_base, func=np.log1p, inverse_func=np.expm1)
-    lgbm_log = TransformedTargetRegressor(regressor=LGBMRegressor(random_state=42, n_jobs=-1, verbose=-1), func=np.log1p, inverse_func=np.expm1)
+    lgbm_log = TransformedTargetRegressor(regressor=LGBMRegressor(random_state=42, n_jobs=1, verbose=-1), func=np.log1p, inverse_func=np.expm1)
 
     # Define models and their hyperparameter grids
     models_to_train = {
@@ -139,7 +139,7 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
                 cv=2,     # Reduced drastically to prevent Render timeout
                 scoring='neg_mean_absolute_error',
                 random_state=42,
-                n_jobs=-1
+                n_jobs=1
             )
             search.fit(X_train, y_train)
             best_model = search.best_estimator_
@@ -154,7 +154,7 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
         
         # Explicit K-Fold CV for backtesting
         kf = KFold(n_splits=2, shuffle=True, random_state=42)
-        cv_scores = cross_val_score(best_model, X_train, y_train, cv=kf, scoring='neg_mean_absolute_error', n_jobs=-1)
+        cv_scores = cross_val_score(best_model, X_train, y_train, cv=kf, scoring='neg_mean_absolute_error', n_jobs=1)
         cv_mae = -cv_scores.mean()
         
         # Predict on test set
