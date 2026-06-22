@@ -9,7 +9,7 @@ import ResourcePanel from './components/ResourcePanel';
 import SeverityGauge from './components/SeverityGauge';
 import ProtocolPanel from './components/ProtocolPanel';
 
-const API = import.meta.env.DEV ? 'http://127.0.0.1:8000' : 'https://flipkart-round2.vercel.app';
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : 'https://flipkart-round2.vercel.app');
 
 const views = [
   { id: 'report', label: 'Analyze Event', icon: Siren },
@@ -32,8 +32,8 @@ export default function App() {
   const [submitting, setSubmitting] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  const reportFailure = useCallback(() => {
-    setNetworkError('Cannot connect to server — make sure python server.py is running on port 8000');
+  const reportFailure = useCallback((errorMsg) => {
+    setNetworkError(errorMsg || 'Cannot connect to server — make sure python server.py is running on port 8000');
   }, []);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function App() {
         if (stateData.nodes) setNodeData(stateData.nodes);
       } catch (error) {
         console.error(error);
-        reportFailure();
+        reportFailure(error.message);
       }
     };
     loadInitialData();
@@ -73,7 +73,7 @@ export default function App() {
       setScenarioRoute(await response.json());
     } catch (error) {
       console.error(error);
-      reportFailure();
+      reportFailure(error.message);
     }
   };
 
@@ -92,7 +92,7 @@ export default function App() {
       if (result.diversion) setView('map');
     } catch (error) {
       console.error(error);
-      reportFailure();
+      reportFailure(error.message);
     } finally {
       setSubmitting(false);
     }

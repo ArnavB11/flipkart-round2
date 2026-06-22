@@ -41,7 +41,7 @@ export default function LearningDashboard({ api, onFailure }) {
         setHeatmap(heatmapData);
       } catch (error) {
         console.error(error);
-        onFailure();
+        onFailure(error.message);
       }
     };
     loadDashboard();
@@ -73,7 +73,7 @@ export default function LearningDashboard({ api, onFailure }) {
       }));
     } catch (error) {
       console.error(error);
-      onFailure();
+      onFailure(error.message);
     } finally {
       setRetraining(false);
     }
