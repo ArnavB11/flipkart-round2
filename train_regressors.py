@@ -135,8 +135,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
             search = RandomizedSearchCV(
                 pipeline, 
                 param_distributions=config['params'], 
-                n_iter=20, # Reduced to 20 so it runs faster locally
-                cv=4,      # Increased cross-validation folds
+                n_iter=2, # Reduced drastically to prevent Render timeout
+                cv=2,     # Reduced drastically to prevent Render timeout
                 scoring='neg_mean_absolute_error',
                 random_state=42,
                 n_jobs=-1
@@ -153,7 +153,7 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, categorical_cols
         from sklearn.model_selection import KFold, cross_val_score
         
         # Explicit K-Fold CV for backtesting
-        kf = KFold(n_splits=5, shuffle=True, random_state=42)
+        kf = KFold(n_splits=2, shuffle=True, random_state=42)
         cv_scores = cross_val_score(best_model, X_train, y_train, cv=kf, scoring='neg_mean_absolute_error', n_jobs=-1)
         cv_mae = -cv_scores.mean()
         
